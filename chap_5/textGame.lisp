@@ -50,3 +50,40 @@
                  `(you see a ,obj on the floor.)))
       (apply #'append (mapcar #'describe-obj (objects-at loc objs obj-locs)))))
 
+;; 5.4
+(defparameter *location* 'living-room)
+
+(defun look()
+  (append (describe-location *location* *nodes*)
+          (describe-paths *location* *edges*)
+          (describe-objects *location* *objects* *object-locations*)))
+
+;; * (look)
+;; (YOU ARE IN THE LIVING-ROOM.
+;; A WIZARD IS SNORING LOUDLY ON THE COUCH.
+;; THERE IS A DOOR GOING WEST FROM HERE.
+;; THERE IS A LADDER GOING UPSTAIRS FROM HERE.
+;; YOU SEE A WHISKEY ON THE FLOOR.
+;; YOU SEE A BUCKET ON THE FLOOR.)
+
+;; 5.5
+(defun walk (direction)
+  (let ((next (find direction
+                    (cdr (assoc *location* *edges*))
+                    :key #'cadr)))
+    (if next
+        (progn (setf *location* (car next))
+               (look))
+        '(you cannot go that way.))))
+
+;; 5.6
+(defun pickup (object)
+  (cond ((member object
+                 (objects-at *location* *objects* *object-locations*))
+         (push (list object 'body) *object-locations*)
+         `(you are now carrying the ,object))
+        (t '(you cannot get that.))))
+
+;; 5.7
+(defun inventory()
+  (cons 'item- (objects-at 'body *objects* *object-locations*)))
